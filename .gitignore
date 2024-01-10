@@ -5,3 +5,5 @@ build
 .DS_Store
 mosguito/backend/static
 mosguito/backend/db.sqlite3
+.idea/
+*_request.json
