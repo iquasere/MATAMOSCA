@@ -21,6 +21,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('authentication/', include('moscaweb.authentication.urls')),
     path('api/', include('moscaweb.api.urls')),
-    path('dashboard/', include('celery_progress.urls')),
 ]
 urlpatterns += [re_path(r'^.*', TemplateView.as_view(template_name='index.html'))]
