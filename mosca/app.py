@@ -1,83 +1,54 @@
-from flask import Flask
-from celery import make_celery, Celery,  shared_task
+import os
+from celery import Celery, Task, shared_task
 from celery.contrib.abortable import AbortableTask
-from flask_restx import Api, Resource, fields
+import celery.states as states
+from flask import Flask, request
+from flask import url_for, jsonify
 
-from logging.config import dictConfig
 
-dictConfig(
-    {
-        "version": 1,
-        "formatters": {
-            "default": {
-                "format": "[%(asctime)s] %(levelname)s in %(module)s: %(message)s",
-            }
-        },
-        "handlers": {
-            "console": {
-                "class": "logging.StreamHandler",
-                "stream": "ext://sys.stdout",
-                "formatter": "default",
-            }
-        },
-        "root": {"level": "DEBUG", "handlers": ["console"]},
-    }
-)
+dev_mode = True
 
-def make_celery(app):
-    celery = Celery(app.import_name)
-    celery.conf.update(app.config["CELERY_CONFIG"])
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379'),
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379')
 
-    class ContextTask(celery.Task):
-        def __call__(self, *args, **kwargs):
+def celery_init_app(app: Flask) -> Celery:
+    class FlaskTask(Task):
+        def __call__(self, *args: object, **kwargs: object) -> object:
             with app.app_context():
                 return self.run(*args, **kwargs)
 
-    celery.Task = ContextTask
-    return celery
+    celery_app = Celery(app.name, task_cls=FlaskTask)
+    celery_app.config_from_object(app.config["CELERY"])
+    celery_app.set_default()
+    app.extensions["celery"] = celery_app
+    return celery_app
 
-
-def create_app():
-    app = Flask(__name__)
-    app.config["SECRET_KEY"] = "Oz8Z7Iu&DwoQK)g%*Wit2YpE#-46vy0n"
-    app.config["CELERY_CONFIG"] = {"broker_url": "redis://redis", "result_backend": "redis://redis"}
-
-    celery = make_celery(app)
-    celery.set_default()
-    
-    api = Api(app,
-              version="1.0",
-              title="MOSCA",
-              description="MOSCA API",)
-    
-    return app, celery, api
+app = Flask(__name__)
+app.config.from_mapping(
+    CELERY=dict(
+        broker_url=CELERY_BROKER_URL,
+        result_backend=CELERY_RESULT_BACKEND,
+        task_ignore_result=True,
+    ),
+)
+celery_app = celery_init_app(app)
 
 # Celery tasks
 @shared_task(bind=True, base=AbortableTask)
 def run_mosca(self, conf):
+    with open("conf.json","w") as f:
+        f.write(conf)
+    os.system("python -m mosca.py conf.json")
     
-    return 'DONE!'
-
-
-app, celery, api = create_app()
-
-# data models
-mosca_conf = api.model(
-    "mosca_conf",
-    {
-    },
-)
-
 # API
-@api.route("/mosca/", methods=["POST"])
-class MOSCARunner(Resource):
-    
-    @api.expect(mosca_conf)
-    def post(self):
-        conf = api.payload
+@app.post("/mosca/")
+def mosca(self):
+        conf = request.data
         run_mosca.delay(conf)
+        return
         
 
    
-if __name__ == "__main__":    
+if __name__ == "__main__":
+    os.system("nohup celery -A app worker --loglevel INFO")   
     app.run(host="0.0.0.0", port=5000)
