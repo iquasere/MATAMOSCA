@@ -1,8 +1,52 @@
 services:
+
+  mosguito:
+    image: mosguito
+    build:
+      context: ./mosguito
+    ports:
+      - 8000:8000
+    volumes:
+      - ./results/:/results/
+    environment:
+      - DEBUG=1
+      - MOSCA_URL= http://127.0.0.1:5000/
+      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_BACKEND=redis://redis:6379/0
+    depends_on:
+      - pgdb
+      - redis
+  
+  celery:
+    build:
+      context: ./mosguito
+    command: celery -A core worker -l INFO
+    volumes:
+        - ./results/:/results/
+    environment:
+        - DEBUG=1
+        - MOSCA_URL= http://127.0.0.1:5000/
+        - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+        - CELERY_BROKER=redis://redis:6379/0
+        - CELERY_BACKEND=redis://redis:6379/0
+    depends_on:
+        - mosguito
+        - redis
+
+  pgdb:
+    image: postgres
+    container_name: pgdb
+    environment:
+        - POSTGRES_DB=postgres
+        - POSTGRES_USER=postgres
+        - POSTGRES_PASSWORD=postgres
+    volumes:
+        - pgdata:/var/lib/postgresql/data/
   
   redis:
-    image: redis
-  
+        image: "redis:alpine"
+        
   mosca:
     image: mosca
     build:
@@ -11,12 +55,9 @@ services:
       - redis
     ports:
       - 5000:5000
+    volumes:
+      - ./results/:/results/
  
-  mosguito:
-    image: mosguito
-    build:
-      context: ./mosguito
-    ports:
-      - 8000:8000
-    environment:
-      - MOSCA_URL= http://127.0.0.1:5000/
+  volumes:
+    pgdata:
+  

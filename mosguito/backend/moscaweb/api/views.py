@@ -6,8 +6,8 @@ from rest_framework.response import Response
 from django_filters import rest_framework as filters
 from django.db.models import Q
 from django.conf import settings
-from .tasks import postURL
 from ..models import Run
+from ..tasks import run_mosca_task
 
 
 
@@ -18,10 +18,15 @@ class RunMOSCAView(GenericAPIView):
         try:
             url = settings.MOSCA_FLASK_URL+"/mosca/"
             data = dict(request.POST)
-            res = postURL(url,data=data)
+            
+            # run with celery
+            run_mosca_task.delay(url,data)
+            
+            # register the requested run into the db
             instance = Run()
             instance.save()
-            return Response(res.json(), 200)
+            
+            return Response({"message": ""}, 200)
         
         except Exception as e:
             return Response({"message": ""}, 500)
