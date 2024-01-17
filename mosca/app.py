@@ -1,10 +1,7 @@
 import os
 from celery import Celery, Task, shared_task
 from celery.contrib.abortable import AbortableTask
-import celery.states as states
 from flask import Flask, request
-from flask import url_for, jsonify
-
 
 dev_mode = True
 

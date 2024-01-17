@@ -8,9 +8,10 @@ services:
       - 8000:8000
     volumes:
       - ./results/:/results/
+    command: gunicorn --bind 0.0.0.0:8000 --workers 1 --timeout 300 mosguito.wsgi:application
     environment:
       - DEBUG=1
-      - MOSCA_URL= http://127.0.0.1:5000/
+      - MOSCA_URL= http://127.0.0.1:5001/
       - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
       - CELERY_BROKER=redis://redis:6379/0
       - CELERY_BACKEND=redis://redis:6379/0
@@ -21,7 +22,7 @@ services:
   celery:
     build:
       context: ./mosguito
-    command: celery -A core worker -l INFO
+    command: celery -A mosguito worker -l INFO
     volumes:
         - ./results/:/results/
     environment:
@@ -42,7 +43,7 @@ services:
         - POSTGRES_USER=postgres
         - POSTGRES_PASSWORD=postgres
     volumes:
-        - pgdata:/var/lib/postgresql/data/
+        - ./db:/var/lib/postgresql/data/
   
   redis:
         image: "redis:alpine"
@@ -54,10 +55,24 @@ services:
     depends_on:
       - redis
     ports:
-      - 5000:5000
+      - 5001:5000
     volumes:
       - ./results/:/results/
+    environment:
+      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_BACKEND=redis://redis:6379/0=value
  
-  volumes:
-    pgdata:
+  dashboard:
+    build:
+      context: ./mosguito
+    command: celery -A mosguito flower
+    volumes:
+      - ./results/:/results/    
+    ports:
+      - 5555:5555
+    depends_on:
+      - mosguito
+      - redis
+      - celery
+  
   
