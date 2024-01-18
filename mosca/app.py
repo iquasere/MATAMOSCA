@@ -1,7 +1,7 @@
-import os
 from celery import Celery, Task, shared_task
 from celery.contrib.abortable import AbortableTask
 from flask import Flask, request
+import os
 
 dev_mode = True
 
