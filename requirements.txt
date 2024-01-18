@@ -1,0 +1,6 @@
+flask~=0.12.2
+celery~=4.1.0
+flower
+requests~=2.12.5
+six~=1.14.0
+rabbitmq-server

@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request
 from logging.config import dictConfig
-import json
-import subprocess
+from tasks import run_mosca_task, celery_app
+from celery.result import AsyncResult
 
 app = Flask(__name__)
 
@@ -35,13 +35,13 @@ def run_mosca():
     try:
         # Get JSON data from the request
         data = request.get_json()
-
+        print('got data', data)
         # Check if 'config' key exists in the JSON data
         if 'config' not in data:
             return jsonify({'error': 'Missing "config" key in the request'}), 400
 
-        # Run the task synchronously (removed Celery)
-        result = _run_mosca_task(data['config'])
+        # Run the task synchronously using Celery
+        result = run_mosca_task.apply_async(args=[data['config']], countdown=1)
 
         return jsonify({'output': result['output'], 'error': result['error']}), 200
 
@@ -49,34 +49,13 @@ def run_mosca():
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/notify_rule_completion', methods=['POST'])
-def notify_rule_completion():
-    data = request.get_json()
-    rule_name = data.get('rule_name')
-    status = data.get('status')
-    print(f"Received notification: Rule '{rule_name}' {status}")
-    # You can process the notification data as needed
-    return jsonify({'message': 'Notification received successfully'})
-
-
-def _run_mosca_task(config):
-    try:
-        # Create a temporary config file
-        temp_config_file = 'temp_config.json'
-        with open(temp_config_file, 'w') as temp_file:
-            json.dump(config, temp_file)
-
-        # Run the mosca command with the temporary config file
-        command = ['mosca', '-c', temp_config_file]
-        result = subprocess.run(command, capture_output=True, text=True)
-
-        # Remove the temporary config file
-        subprocess.run(['rm', temp_config_file])
-
-        return {'output': result.stdout, 'error': result.stderr}
-
-    except Exception as e:
-        return {'error': e}
+@app.route('/check_task/<task_id>', methods=['GET'])
+def check_task(task_id):
+    task_result = AsyncResult(task_id, app=celery_app)
+    if task_result.ready():
+        return jsonify({'output': task_result.result, 'error': task_result.result.get('error')}), 200
+    else:
+        return jsonify({'status': 'Task still running'}), 200
 
 
 if __name__ == "__main__":

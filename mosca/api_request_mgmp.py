@@ -1,7 +1,7 @@
 import json
 import requests
 
-with open('request_config_mgmp.json') as api_config_file:
+with open('/Users/joaosequeira/Documents/github/MATAMOSCA/mosca/mgmp_request.json') as api_config_file:
     api_config = json.load(api_config_file)
 
 with open(api_config["config_file_path"], 'r') as config_file:

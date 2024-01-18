@@ -3,7 +3,7 @@ import subprocess
 import json
 import logging
 
-app = Celery('tasks', broker='pyamqp://guest@localhost//', backend='rpc://')
+celery_app = Celery('tasks', broker='pyamqp://guest@localhost//', backend='rpc://')
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -14,7 +14,7 @@ stream_handler.setFormatter(formatter)
 logger.addHandler(stream_handler)
 
 
-@app.task
+@celery_app.task
 def run_mosca_task(config):
     try:
         # Create a temporary config file
