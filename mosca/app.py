@@ -5,8 +5,17 @@ from flask import Flask, request
 
 dev_mode = True
 
-CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379'),
-CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379')
+USE_CELERY = os.environ.get("USE_CELERY", "FALSE")
+if USE_CELERY == "TRUE":
+    USE_CELERY = True
+else:
+    USE_CELERY = False
+
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379")
+CELERY_RESULT_BACKEND = os.environ.get(
+    "CELERY_RESULT_BACKEND", "redis://localhost:6379"
+)
+
 
 def celery_init_app(app: Flask) -> Celery:
     class FlaskTask(Task):
@@ -20,32 +29,44 @@ def celery_init_app(app: Flask) -> Celery:
     app.extensions["celery"] = celery_app
     return celery_app
 
+
 app = Flask(__name__)
-app.config.from_mapping(
-    CELERY=dict(
-        broker_url=CELERY_BROKER_URL,
-        result_backend=CELERY_RESULT_BACKEND,
-        task_ignore_result=True,
-    ),
-)
-celery_app = celery_init_app(app)
+if USE_CELERY:
+    app.config.from_mapping(
+        CELERY=dict(
+            broker_url=CELERY_BROKER_URL,
+            result_backend=CELERY_RESULT_BACKEND,
+            task_ignore_result=True,
+        ),
+    )
+    celery_app = celery_init_app(app)
+
+
+def run_mosca(conf):
+    print("Running MOSCA")
+    with open("conf.json", "w") as f:
+        f.write(conf)
+    os.system("python -m mosca.py conf.json")
+
 
 # Celery tasks
 @shared_task(bind=True, base=AbortableTask)
-def run_mosca(self, conf):
-    with open("conf.json","w") as f:
-        f.write(conf)
-    os.system("python -m mosca.py conf.json")
-    
+def run_mosca_celery(self, conf):
+    run_mosca(conf)
+
+
 # API
 @app.post("/mosca/")
 def mosca(self):
-        conf = request.data
-        run_mosca.delay(conf)
-        return
-        
+    conf = request.data
+    if USE_CELERY:
+        run_mosca_celery.delay(conf)
+    else:
+        run_mosca(conf)
 
-   
+
 if __name__ == "__main__":
-    os.system("nohup celery -A app worker --loglevel INFO")   
+    if USE_CELERY:
+        os.system("nohup celery -A app worker --loglevel INFO")
+    print(f"Using celery {USE_CELERY}")
     app.run(host="0.0.0.0", port=5000)

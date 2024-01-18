@@ -43,6 +43,7 @@ services:
     volumes:
       - ./results/:/results/
     environment:
+      - USE_CELERY=FALSE
       - CELERY_BROKER=redis://redis:6379/0
       - CELERY_BACKEND=redis://redis:6379/0=value
  
