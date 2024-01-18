@@ -30,7 +30,7 @@ const Main = ({ configData, onConfigChange, onConfigOverwrite, hasMt, toggleHasM
     if (configData['doAssembly']) { onConfigChange('errorModel', 'complete') }
     const snake_case_values = {}
     Object.keys(configData).map((key) => snake_case_values[camelToSnakeCase(key)] = configData[key])
-    jsonConfig = JSON.stringify(snake_case_values, null, 2);
+    const jsonConfig = JSON.stringify(snake_case_values, null, 2);
     remoteMOSCA(jsonConfig)
   }
 

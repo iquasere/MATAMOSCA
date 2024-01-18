@@ -1,6 +1,8 @@
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import Constants from '../Constants';
+import {LOGIN_SUCCESS, LOGIN_FAIL} from './types';
+import {load_user} from './authentication';
 
 export const remoteMOSCA = (jsonconf) => async (dispatch) => {
 
@@ -8,7 +10,7 @@ export const remoteMOSCA = (jsonconf) => async (dispatch) => {
         withCredentials: true,
         headers: {
             'Accept': 'application/json',
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json', 
             'X-CSRFToken': Cookies.get('csrftoken')
         }
     };

@@ -23,13 +23,13 @@ class RunMOSCAView(GenericAPIView):
             run_mosca_task.delay(url,data)
             
             # register the requested run into the db
-            instance = Run()
+            instance = Run(user_id)
             instance.save()
             
             return Response({"message": ""}, 200)
         
         except Exception as e:
-            return Response({"message": ""}, 500)
+            return Response({"message": str(e)}, 500)
         
         
 
