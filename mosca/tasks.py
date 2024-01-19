@@ -3,7 +3,11 @@ import subprocess
 import json
 import logging
 
-celery_app = Celery('tasks', broker='pyamqp://guest@localhost//', backend='rpc://')
+
+rabbit_mq_url = 'amqp://guest:guest@localhost:5672//'
+mosquitto_url = 'mqtt://localhost:1883'
+redis_url = 'redis://localhost:6379/0'
+celery_app = Celery('tasks', broker=redis_url)#, backend='rpc://')
 
 # Configure logging
 logger = logging.getLogger(__name__)

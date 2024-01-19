@@ -3,13 +3,6 @@ services:
   redis:
     image: redis
 
-  rabbitmq:
-    image: rabbitmq:3.8
-    env:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
-    ports: ["5762:5762"]
-  
   mosca:
     image: mosca
     build:
