@@ -13,5 +13,5 @@ Start by running docker-compose. You may refer to [https://docs.docker.com/compo
 docker-compose up -d --build
 ```
 
-MATAMOSCA is available through your local browser using the URL [http://127.0.0.1:8000/](http://127.0.0.1:8000/).
+MATAMOSCA is available through your local browser using the URL [http://127.0.0.1:8080/](http://127.0.0.1:8080/).
 The Flower dashboard, that allow to monitor and manage MOSCA's tasks can be accessed using [http://127.0.0.1:5555/](http://127.0.0.1:5555/). 
