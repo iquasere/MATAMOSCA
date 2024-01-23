@@ -31,6 +31,7 @@ const Main = ({ configData, onConfigChange, onConfigOverwrite, hasMt, toggleHasM
     const snake_case_values = {}
     Object.keys(configData).map((key) => snake_case_values[camelToSnakeCase(key)] = configData[key])
     const jsonConfig = JSON.stringify(snake_case_values, null, 2);
+    console.log(jsonConfig)
     remoteMOSCA(jsonConfig)
   }
 

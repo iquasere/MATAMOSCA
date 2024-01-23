@@ -50,5 +50,10 @@ services:
       - CELERY_BROKER=redis://redis:6379/0
       - CELERY_BACKEND=redis://redis:6379/0=value
  
-  
+  nginx:
+    build: ./nginx
+    ports:
+      - 8080:80
+    depends_on:
+      - mosguito
   
