@@ -12,9 +12,7 @@ else:
     USE_CELERY = False
 
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379")
-CELERY_RESULT_BACKEND = os.environ.get(
-    "CELERY_RESULT_BACKEND", "redis://localhost:6379"
-)
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND", "redis://localhost:6379")
 
 
 def celery_init_app(app: Flask) -> Celery:
@@ -51,7 +49,7 @@ def run_mosca(conf):
 
 # Celery tasks
 @shared_task(bind=True, base=AbortableTask)
-def run_mosca_celery(self, conf):
+def run_mosca_celery(conf):
     run_mosca(conf)
 
 

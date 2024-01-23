@@ -1,7 +1,9 @@
+version: '3'
+
 services:
-  
+
   redis:
-        image: "redis:alpine"
+    image: "redis:alpine"
         
   mosca:
     image: mosca
@@ -32,7 +34,7 @@ services:
       - ./default.env
     depends_on:
       - redis
-  
+
   nginx:
     build: ./nginx
     volumes:

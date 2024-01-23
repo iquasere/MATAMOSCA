@@ -6,3 +6,5 @@ build
 mosguito/backend/static
 mosguito/backend/db.sqlite3
 mosguito/backend/moscaweb/migrations/
+.idea
+*_request.json

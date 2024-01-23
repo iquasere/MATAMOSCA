@@ -27,4 +27,3 @@ python manage.py migrate
 python manage.py createsuperuser --username=user --email=user@mosguito.com
 python manage.py runserver
 ```
-
