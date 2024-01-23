@@ -411,38 +411,3 @@ export const update_user_info = (first_name, last_name) => async dispatch => {
     }
 };
 
-export const remove_solution = (solution_id) => async dispatch => {
-    const config = {
-        withCredentials: true,
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'X-CSRFToken': Cookies.get('csrftoken')
-        }
-    };
-
-    const body = JSON.stringify({
-        solution_id: solution_id
-    });
-
-    try {
-        const res = await axios.post(Constants.mosguito_api_url + 'authentication/delete-solution', body, config);
-
-        if (res.data.error) {
-            dispatch({
-                type: DELETE_SOLUTION_FAIL,
-                message: res.data.error
-            });
-        } else {
-            dispatch({
-                type: DELETE_SOLUTION_SUCCESS,
-                message: null
-            });
-        }
-    } catch (err) {
-        dispatch({
-            type: DELETE_SOLUTION_FAIL,
-            message: "Something went wrong when removing the solution from the database. Please try again later."
-        });
-    }
-};
