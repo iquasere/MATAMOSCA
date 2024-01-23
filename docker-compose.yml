@@ -9,6 +9,7 @@ services:
       - 5555:5555
     volumes:
       - ./results/:/results/
+      - ./inputs/:/inputs/
     environment:
       - DEBUG=1
       - MOSCA_URL= http://127.0.0.1:5001/
@@ -45,6 +46,7 @@ services:
       - 5001:5000
     volumes:
       - ./results/:/results/
+      - ./inputs/:/inputs/
     environment:
       - USE_CELERY=FALSE
       - CELERY_BROKER=redis://redis:6379/0
