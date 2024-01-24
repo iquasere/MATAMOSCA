@@ -101,6 +101,8 @@ export const checkAuthenticated = () => async (dispatch) => {
 };
 
 export const login = (username, password) => async (dispatch) => {
+
+    console.log("****"+Constants.mosguito_api_url)
     const config = {
         withCredentials: true,
         headers: {
@@ -374,7 +376,7 @@ export const update_username = (username) => async dispatch => {
 };
 
 export const update_user_info = (first_name, last_name) => async dispatch => {
-
+    
     try {
         const res = await axios({
             method: 'put',

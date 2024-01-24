@@ -19,4 +19,4 @@ WORKDIR /app
 
 COPY app.py /app/app.py
 EXPOSE 5000
-CMD ["gunicorn","--bind", "0.0.0.0:5000", "--workers", "4","--timeout","1000","app:app"]
+CMD ["gunicorn","--bind", "0.0.0.0:5000", "--workers", "4","--timeout","0","app:app"]

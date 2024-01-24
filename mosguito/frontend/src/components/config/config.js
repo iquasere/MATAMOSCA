@@ -11,7 +11,10 @@ import UniprotDatabases from './components/uniprotDatabases';
 import UniprotColumns from './components/uniprotColumns';
 import KeggMaps from './components/keggmaps';
 import Experiments from './components/experiments';
-import { remoteMOSCA } from '../../actions/mosca';
+//import { remoteMOSCA } from '../../actions/mosca';
+import Cookies from 'js-cookie';
+import axios from 'axios';
+import Constants from '../../Constants';
 
 const Main = ({ configData, onConfigChange, onConfigOverwrite, hasMt, toggleHasMt, hasMp, toggleHasMp }) => {
 
@@ -30,9 +33,25 @@ const Main = ({ configData, onConfigChange, onConfigOverwrite, hasMt, toggleHasM
     if (configData['doAssembly']) { onConfigChange('errorModel', 'complete') }
     const snake_case_values = {}
     Object.keys(configData).map((key) => snake_case_values[camelToSnakeCase(key)] = configData[key])
-    const jsonConfig = JSON.stringify(snake_case_values, null, 2);
-    console.log(jsonConfig)
-    remoteMOSCA(jsonConfig)
+    
+    const body = JSON.stringify(snake_case_values, null, 2);
+    console.log(body)
+    
+
+    const config = {
+      withCredentials: true,
+      headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json', 
+          'X-CSRFToken': Cookies.get('csrftoken')
+      }
+    };
+
+    try {
+        const res = axios.post(Constants.mosguito_api_url + 'api/mosca/', body, config);
+    } catch (err) {
+        console.log(err)
+    }
   }
 
   const downloadJson = (ev) => {

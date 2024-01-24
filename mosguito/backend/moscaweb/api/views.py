@@ -17,14 +17,14 @@ class RunMOSCAView(GenericAPIView):
         user_id = self.request.user.id
         try:
             url = settings.MOSCA_FLASK_URL+"/mosca/"
-            data = dict(request.POST)
+            data = {"configuration":request.POST}
             
             # run with celery
             run_mosca_task.delay(url,data)
             
             # register the requested run into the db
-            instance = Run(user_id)
-            instance.save()
+            # instance = Run(user_id)
+            # instance.save()
             
             return Response({"message": ""}, 200)
         
