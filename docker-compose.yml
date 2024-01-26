@@ -4,11 +4,14 @@ services:
 
   redis:
     image: "redis:alpine"
+    networks:  
+      - backnet
         
   mosca:
     image: mosca
     build:
       context: ./mosca
+    container_name: matamosca-mosca
     depends_on:
       - redis
     ports:
@@ -16,6 +19,8 @@ services:
     volumes:
       - ./results/:/results/
       - ./inputs/:/inputs/
+    networks:  
+      - backnet
     env_file:
       - ./default.env
 
@@ -23,6 +28,7 @@ services:
     image: mosguito
     build:
       context: ./mosguito
+    container_name: matamosca-mosguito
     ports:
       - 8000:8000
       - 5555:5555
@@ -30,6 +36,9 @@ services:
       - ./results/:/results/
       - ./inputs/:/inputs/
       - ./db/:/db/
+    networks:  
+      - backnet
+      - frontnet 
     env_file:
       - ./default.env
     depends_on:
@@ -43,4 +52,9 @@ services:
       - 8080:80
     depends_on:
       - mosguito
+    networks:  
+      - frontnet
   
+networks:
+  backnet:  
+  frontnet:

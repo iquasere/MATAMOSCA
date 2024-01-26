@@ -15,7 +15,8 @@ import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-WHITENOISE = os.getenv("WHITENOISE", 'False').lower() in ('true', '1', 't')
+WHITENOISE = os.getenv("WHITENOISE", 'True').lower() in ('true', '1', 't')
+SQLLIGHTFILE = os.getenv("SQLLIGHTFILE", '/db/db.sqlite3')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
@@ -94,7 +95,7 @@ WSGI_APPLICATION = 'mosguito.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': '/db/db.sqlite3',
+        'NAME': SQLLIGHTFILE,
     }
 }
 
@@ -173,7 +174,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 # CORS_ALLOW_CREDENTIALS = True
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
-MOSCA_FLASK_URL = os.getenv('MOSCA_URL','http://127.0.0.1:5000/')
+MOSCA_FLASK_URL = os.getenv('MOSCA_URL','http://127.0.0.1:5001/')
 
 # Avoid using NGINX. Comment for NGINX
 if WHITENOISE:

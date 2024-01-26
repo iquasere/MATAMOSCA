@@ -1,13 +1,12 @@
-from rest_framework.generics import (RetrieveAPIView, GenericAPIView,
-                                     ListAPIView)
-from rest_framework.mixins import ListModelMixin
+from rest_framework.generics import (GenericAPIView)
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-from django_filters import rest_framework as filters
 from django.db.models import Q
 from django.conf import settings
-from ..models import Run
+from django.contrib.auth.models import User
+from ..models import MoscaRun
 from ..tasks import run_mosca_task
+import json
 
 
 
@@ -17,15 +16,25 @@ class RunMOSCAView(GenericAPIView):
         user_id = self.request.user.id
         try:
             url = settings.MOSCA_FLASK_URL+"/mosca/"
-            data = {"configuration":request.POST}
+            json_data = request.data
+            name = json_data['name']
+            description = json_data['description']
+            configuration = json_data['configuration']
             
             # run with celery
-            run_mosca_task.delay(url,data)
+            async_result = run_mosca_task.delay(url,configuration)
+            pool_id = async_result.id
             
+            # TODO: save the pool_id into the DB
             # register the requested run into the db
-            # instance = Run(user_id)
-            # instance.save()
-            
+            user = User.objects.get(id=user_id)
+            instance = MoscaRun(user=user,
+                                name=name,
+                                description=description,
+                                configuration=json.dumps(configuration),
+                                )
+            instance.save()
+        
             return Response({"message": ""}, 200)
         
         except Exception as e:
