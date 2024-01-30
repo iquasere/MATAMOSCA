@@ -1,6 +1,6 @@
 FROM continuumio/miniconda3
 
-VOLUME ["named_volume"]
+VOLUME ["/named_volume"]
 
 # MOSCA
 RUN git clone https://github.com/iquasere/MOSCA.git -b development \
