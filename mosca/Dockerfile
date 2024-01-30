@@ -1,19 +1,20 @@
 FROM continuumio/miniconda3
 
+VOLUME ["named_volume"]
+
 # MOSCA
-RUN buildDeps='build-essential zlib1g-dev' \
+RUN git clone https://github.com/iquasere/MOSCA.git -b development \
+&& bash MOSCA/cicd/install.bash --mosca_env "$(conda info --base)" \
+&& conda clean --all \
 && apt-get update \
-&& apt-get install -y $buildDeps --no-install-recommends \
-&& rm -rf /var/lib/apt/lists/* \
-&& git clone https://github.com/iquasere/MOSCA.git
-RUN bash MOSCA/cicd/install_ci.bash 
-RUN conda clean --all \
-&& apt-get purge -y --auto-remove $buildDeps
+&& apt-get install -y curl \
+&& curl -fsSL https://get.docker.com -o get-docker.sh \
+&& sh get-docker.sh
 
 # Flask/Celery/Redis
-RUN pip install Flask==2.3.2 gunicorn==20.1.0
-RUN pip install flask-restx
-RUN pip install celery==5.2.7 redis==4.4.0
+RUN pip install Flask==2.3.2 gunicorn==20.1.0 \
+&& pip install flask-restx \
+&& pip install celery==5.2.7 redis==4.4.0
 
 WORKDIR /app
 

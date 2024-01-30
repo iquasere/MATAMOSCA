@@ -173,12 +173,12 @@ CORS_ORIGIN_ALLOW_ALL = True
 # CORS_ALLOW_CREDENTIALS = True
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
-MOSCA_FLASK_URL = os.getenv('MOSCA_URL','http://127.0.0.1:5000/')
+MOSCA_FLASK_URL = os.getenv('MOSCA_URL', 'http://127.0.0.1:5000/')
 
 # Avoid using NGINX. Comment for NGINX
 if WHITENOISE:
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Celery
-CELERY_BROKER_URL = os.environ.get("CELERY_BROKER","redis://localhost:6379")
-CELERY_RESULT_BACKEND = os.environ.get("CELERY_BROKER","redis://localhost:6379")
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER", "redis://localhost:6379")
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_BROKER", "redis://localhost:6379")

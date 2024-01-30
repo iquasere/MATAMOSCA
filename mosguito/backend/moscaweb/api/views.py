@@ -10,10 +10,9 @@ from ..models import Run
 from ..tasks import run_mosca_task
 
 
-
 class RunMOSCAView(GenericAPIView):
 
-     def post(self, request, format=None):
+    def post(self, request, format=None):
         user_id = self.request.user.id
         try:
             url = settings.MOSCA_FLASK_URL+"/mosca/"
@@ -31,15 +30,14 @@ class RunMOSCAView(GenericAPIView):
         except Exception as e:
             return Response({"message": str(e)}, 500)
         
-        
 
 class RunUMAPIView(GenericAPIView):
     
-     def post(self, request, format=None):
-            return Response({"message": ""}, 500)
+    def post(self, request, format=None):
+        return Response({"message": ""}, 500)
         
         
 class RunKEGGCharterView(GenericAPIView):
     
-     def post(self, request, format=None):
-            return Response({"message": ""}, 500)
+    def post(self, request, format=None):
+        return Response({"message": ""}, 500)
