@@ -32,27 +32,37 @@ api = Api(
 
 mosca_input = api.model(
    "MOSCA_input",
-   { "configutation":fields.String(default="")}
+   { "configuration":fields. String(default="A mosca configuration string")}
 )
 
 @api.route("/mosca/", methods=["POST"])
 class MOSCARunner(Resource):
     
     def runmosca(self,conf):
-        print("Running MOSCA")
+        app.logger.info("Running MOSCA")
         with open("conf.json", "w") as f:
             f.write(conf)
-        os.system("python -m mosca.py conf.json")
+            
+        # Execute mosca
+        # os.system("python -m mosca.py conf.json")
 
     
     @api.expect(mosca_input)
     def post(self):
-        conf = api.payload.get("configuration")
-        try:
-            self.runmosca(conf)
-            return str("OK")
-        except Exception as e:
-            return str(e)        
+        data = api.payload
+        conf = data.get("configuration",None)
+        if conf is not None:
+            try:
+                self.runmosca(conf)
+                return str("OK")
+            except Exception as e:
+                app.logger.error(e)
+                return {"error":str(e)}
+        else:
+            app.logger.error("No MOSCA configuration found in the request")
+            return {"error":"No MOSCA configuration found in the request"}
+    
+                
         
         
 if __name__ == "__main__":

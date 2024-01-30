@@ -33,11 +33,12 @@ const Main = ({ configData, onConfigChange, onConfigOverwrite, hasMt, toggleHasM
     if (configData['doAssembly']) { onConfigChange('errorModel', 'complete') }
     const snake_case_values = {}
     Object.keys(configData).map((key) => snake_case_values[camelToSnakeCase(key)] = configData[key])
-    
-    const body = JSON.stringify(snake_case_values, null, 2);
-    console.log(body)
-    
 
+    const body ={
+      name :"Test",
+      description:"A simple test",
+      configuration:snake_case_values
+    }
     const config = {
       withCredentials: true,
       headers: {
