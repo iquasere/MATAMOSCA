@@ -1,15 +1,4 @@
-FROM continuumio/miniconda3
-
-VOLUME ["/named_volume"]
-
-# MOSCA
-RUN git clone https://github.com/iquasere/MOSCA.git -b development \
-&& bash MOSCA/cicd/install.bash --mosca_env "$(conda info --base)" \
-&& conda clean --all \
-&& apt-get update \
-&& apt-get install -y curl \
-&& curl -fsSL https://get.docker.com -o get-docker.sh \
-&& sh get-docker.sh
+FROM matamosca/mosca:2.3.0-1
 
 # Flask/Celery/Redis
 RUN pip install Flask==2.3.2 gunicorn==20.1.0 \

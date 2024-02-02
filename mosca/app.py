@@ -1,6 +1,7 @@
 from flask import Flask, request, send_file, json
 from flask_restx import Api, Resource, fields
 import os
+import hashlib
 from logging.config import dictConfig
 
 dictConfig(
@@ -39,12 +40,15 @@ mosca_input = api.model(
 class MOSCARunner(Resource):
     
     def runmosca(self,conf):
+        folder = hashlib.md5(conf.encode()).hexdigest()
+        filename = "/results/"+folder+"/conf.json"
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
         app.logger.info("Running MOSCA")
-        with open("conf.json", "w") as f:
+        with open(filename, "w") as f:
             f.write(conf)
             
         # Execute mosca
-        # os.system("python -m mosca.py conf.json")
+        os.system(f"mosca -c {filename}")
 
     
     @api.expect(mosca_input)

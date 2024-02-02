@@ -15,10 +15,10 @@ services:
     depends_on:
       - redis
     ports:
-      - 5001:5000
+      - ${MOSCA_PORT}:5000
     volumes:
-      - ./results/:/results/
-      - ./inputs/:/inputs/
+      - ${RESULT_FOLDER}:/results/
+      - ${INPUT_FOLDER}:/inputs/
     networks:
       - backnet
     env_file:
@@ -30,12 +30,12 @@ services:
       context: ./mosguito
     container_name: matamosca-mosguito
     ports:
-      - 8000:8000
-      - 5555:5555
+      - ${MOSGUITO_PORT}:8000
+      - ${FLOWERY_PORT}:5555
     volumes:
-      - ./results/:/results/
-      - ./inputs/:/inputs/
-      - ./db/:/db/
+      - ${RESULT_FOLDER}:/results/
+      - ${INPUT_FOLDER}:/inputs/
+      - ${DB_FOLDER}:/db/
     networks:
       - backnet
       - frontnet
@@ -47,9 +47,9 @@ services:
   nginx:
     build: ./nginx
     volumes:
-      - ./mosguito/backend/static/:/app/static/
+      - ${APP_PATH}/mosguito/backend/static/:/app/static/
     ports:
-      - 8080:80
+      - ${NGINX_PORT}:80
     depends_on:
       - mosguito
     networks:
