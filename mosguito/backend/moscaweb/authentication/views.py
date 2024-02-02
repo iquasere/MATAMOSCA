@@ -1,6 +1,7 @@
 import json
 
 from django.contrib import auth
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
@@ -47,41 +48,43 @@ class SignupView(APIView):
                     else:
                         user = User.objects.create_user(username=username, password=password1, first_name=first_name,
                                                         last_name=last_name, email=email)
-
-                        user.is_active = False
+                        
+                        user.is_active = not settings.EMAIL_ACTIVATION
                         user.save()
+                        if settings.EMAIL_ACTIVATION:
+                            uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+                            domain = get_current_site(request).domain
+                            token = token_generator.make_token(user)
+                            link = "/activation/" + str(uidb64) + "/" + str(token)
+                            activation_url = str(domain) + str(link)
 
-                        uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
-                        domain = get_current_site(request).domain
-                        token = token_generator.make_token(user)
-                        link = "/activation/" + str(uidb64) + "/" + str(token)
-                        activation_url = str(domain) + str(link)
+                            format_dictionary = {'name': first_name, 'url': activation_url}
 
-                        format_dictionary = {'name': first_name, 'url': activation_url}
+                            message = "Dear {name},\n\nWelcome to the Strain Design DataBase. \n\nYour " \
+                                    "registration at MOSGUITO is almost complete. The next step is for you to activate " \
+                                    "the account which can be done through the following link:\n\n{url}\n\n" \
+                                    "Kind regards,\n\nThe MOSGUITO Team.".format(**format_dictionary)
 
-                        message = "Dear {name},\n\nWelcome to the Strain Design DataBase. \n\nYour " \
-                                  "registration at MOSGUITO is almost complete. The next step is for you to activate " \
-                                  "the account which can be done through the following link:\n\n{url}\n\n" \
-                                  "Kind regards,\n\nThe MOSGUITO Team.".format(**format_dictionary)
+                            try:
+                                email_message = EmailMessage(
+                                    subject="MOSGUITO Account",
+                                    body=message,
+                                    to=[email]
+                                )
+                                email_message.send(fail_silently=False)
 
-                        try:
-                            email_message = EmailMessage(
-                                subject="MOSGUITO Account",
-                                body=message,
-                                to=[email]
-                            )
-                            email_message.send(fail_silently=False)
+                                return Response({'success': 'User created successfully'})
 
+                            except Exception:
+
+                                if User.objects.filter(username=username).exists():
+                                    user = User.objects.filter(username=username)[0]
+                                    User.objects.filter(id=user.id).delete()
+
+                                return Response({'error': 'It was not possible to send the confirmation email. '
+                                                        'Please verify the email field.'})
+                        else:
                             return Response({'success': 'User created successfully'})
-
-                        except Exception:
-
-                            if User.objects.filter(username=username).exists():
-                                user = User.objects.filter(username=username)[0]
-                                User.objects.filter(id=user.id).delete()
-
-                            return Response({'error': 'It was not possible to send the confirmation email. '
-                                                      'Please verify the email field.'})
             else:
                 return Response({'error': 'Passwords do not match'})
 
