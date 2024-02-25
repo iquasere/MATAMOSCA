@@ -1,7 +1,6 @@
 import { Nav, Navbar } from "react-bootstrap";
 import { FaUserAlt } from "react-icons/fa";
 import { AiOutlineLogout, AiOutlineLogin } from "react-icons/ai";
-import { ImSearch } from "react-icons/im";
 import { Link } from "react-router-dom";
 import { connect } from 'react-redux';
 import { logout } from '../../actions/authentication';
@@ -27,7 +26,7 @@ const Navigation = ({ isAuthenticated, first_name, logout }) => {
                                     <Link className="navbar-brand" to="/config/">Mosca</Link>
                                 </Nav.Item>
                                 <Nav.Item>
-                                    <Link className="navbar-brand" to="/">UMAPI</Link>
+                                    <Link className="navbar-brand" to="/">UPIMAPI</Link>
                                 </Nav.Item>
                                 <Nav.Item>
                                     <Link className="navbar-brand" to="/">KEGGCharter</Link>

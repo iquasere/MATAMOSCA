@@ -1,18 +1,13 @@
 import React, { useState, useEffect } from "react";
 import 'rsuite/dist/rsuite.min.css';
-//import { Col, Row } from 'react-bootstrap';
 import { Navigate, useParams } from 'react-router-dom';
-import Select from 'react-select';
 import { connect } from "react-redux";
-import Constants from "../Constants";
-import axios from "axios";
 import Config from "../components/config/config";
 import { defaultValues } from '../components/config/utils/defaultValues'
 
 const ConfigurationView = ({ isAuthenticated }) => {
 
   const [configData, setConfig] = useState(defaultValues)
-  const [outputsFiles, setOutputsFiles] = useState({})
   const [hasMt, setHasMt] = useState(true)
   const toggleHasMt = () => setHasMt(!hasMt)
   const [hasMp, setHasMp] = useState(false)

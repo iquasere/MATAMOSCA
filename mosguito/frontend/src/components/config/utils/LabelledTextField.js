@@ -2,7 +2,7 @@ import {TextField} from '@material-ui/core'
 import {useState} from "react";
 import Alert from 'react-bootstrap/Alert';
 
-const LabelledTextField = ({ label, value, onChange, placeholder, helpMessage ="" }) => {
+const LabelledTextField = ({ label, value, onChange, placeholder, helpMessage ="",multiline=false}) => {
 
   const [isHovering, setIsHovering] = useState(false);
 
@@ -25,6 +25,7 @@ const LabelledTextField = ({ label, value, onChange, placeholder, helpMessage ="
         value={value}
         onChange={onChange}
         placeholder={placeholder}
+        multiline={multiline}
       />
     </div>
     {helpMessage &&

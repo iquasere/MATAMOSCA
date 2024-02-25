@@ -15,12 +15,16 @@ import Experiments from './components/experiments';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import Constants from '../../Constants';
+import LabelledTextField from './utils/LabelledTextField';
 
 const Main = ({ configData, onConfigChange, onConfigOverwrite, hasMt, toggleHasMt, hasMp, toggleHasMp }) => {
 
   const camelToSnakeCase = str => str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
 
   const [step, setStep] = React.useState(0);
+  const [name,setName] = React.useState("");
+  const [description,setDescription] = React.useState("");
+
   const onChange = nextStep => {
     setStep(nextStep < 0 ? 0 : nextStep > 5 ? 5 : nextStep);
   };
@@ -35,8 +39,8 @@ const Main = ({ configData, onConfigChange, onConfigOverwrite, hasMt, toggleHasM
     Object.keys(configData).map((key) => snake_case_values[camelToSnakeCase(key)] = configData[key])
 
     const body ={
-      name :"Test",
-      description:"A simple test",
+      name :name,
+      description:description,
       configuration:snake_case_values
     }
     const config = {
@@ -50,6 +54,7 @@ const Main = ({ configData, onConfigChange, onConfigOverwrite, hasMt, toggleHasM
 
     try {
         const res = axios.post(Constants.mosguito_api_url + 'api/mosca/', body, config);
+
     } catch (err) {
         console.log(err)
     }
@@ -107,7 +112,24 @@ const Main = ({ configData, onConfigChange, onConfigOverwrite, hasMt, toggleHasM
           <p className='align-middle m-4'>MOSCA {configData.version}</p>
 
         </div>
-
+        <div>
+          <LabelledTextField
+                label='Name'
+                value={name}
+                onChange={e => setName(e.target.value)}
+                placeholder='Name of the run'
+                helpMessage='The name of the MOSCA RUN'
+          />
+        </div>
+        <div>
+          <LabelledTextField
+                label='Description'
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+                placeholder='A brief description'
+                helpMessage='The description of the MOSCA RUN'
+          />
+        </div>
         <div>
           <Steps className="container mt-5" current={step} vertical>
             <Steps.Item title={<div className=" fw-light align-items-top" style={{ fontSize: "18px" }}>
